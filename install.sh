@@ -37,7 +37,7 @@ if ! pgrep -x "ollama" > /dev/null; then
 fi
 
 # Pull the model
-MODEL="qwen3:0.6b"
+MODEL="qwen2.5:0.5b"
 echo "🧠 Downloading model: $MODEL"
 ollama pull "$MODEL" || {
     echo "❌ Failed to pull $MODEL — check your Ollama installation or model name"

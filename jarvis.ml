@@ -4,9 +4,9 @@ open Yojson.Basic.Util
 (* --- Configuration --- *)
 module Config = struct
   let ollama_base_url = "http://localhost:11434"
-  let default_model = "qwen3:0.6b"
+  let default_model = "qwen2.5:0.5b"
   let request_timeout = 10.0 (* seconds *)
-  let debug = ref true (* Set to false to disable debug output *)
+  let debug = ref false (* Set to false to disable debug output *)
 end
 
 (* --- Debug helper --- *)
@@ -43,30 +43,60 @@ type command =
   | Cat of string
 
 (* --- JSON Schema for structured output --- *)
-let command_schema =
+let format_json =
   `Assoc [
     ("type", `String "object");
-    ("properties", `Assoc [
-      ("action", `Assoc [
-        ("type", `String "string");
-        ("enum", `List [
-          `String "ls"; `String "mkdir"; `String "echo";
-          `String "pwd"; `String "cat"
-        ])
-      ]);
-      ("args", `Assoc [
-        ("type", `String "object");
+    ("oneOf", `List [
+      (* ls *)
+      `Assoc [
         ("properties", `Assoc [
-          ("path", `Assoc [("type", `String "string")]);
-          ("options", `Assoc [("type", `String "string")]);
-          ("content", `Assoc [("type", `String "string")]);
+          ("action", `Assoc [("const", `String "ls")]);
+          ("args", `Assoc [
+            ("type", `String "object");
+            ("properties", `Assoc [
+              ("path", `Assoc [("type", `String "string")])
+            ]);
+            ("required", `List [`String "path"]);
+            ("additionalProperties", `Bool false)
+          ])
         ]);
-        ("additionalProperties", `Bool false)
-      ])
-    ]);
-    ("required", `List [`String "action"; `String "args"]);
-    ("additionalProperties", `Bool false)
+        ("required", `List [`String "action"; `String "args"])
+      ];
+      (* mkdir *)
+      `Assoc [
+        ("properties", `Assoc [
+          ("action", `Assoc [("const", `String "mkdir")]);
+          ("args", `Assoc [
+            ("type", `String "object");
+            ("properties", `Assoc [
+              ("path", `Assoc [("type", `String "string")])
+            ]);
+            ("required", `List [`String "path"]);
+            ("additionalProperties", `Bool false)
+          ])
+        ]);
+        ("required", `List [`String "action"; `String "args"])
+      ];
+      (* echo *)
+      `Assoc [
+        ("properties", `Assoc [
+          ("action", `Assoc [("const", `String "echo")]);
+          ("args", `Assoc [
+            ("type", `String "object");
+            ("properties", `Assoc [
+              ("text", `Assoc [("type", `String "string")])
+            ]);
+            ("required", `List [`String "text"]);
+            ("additionalProperties", `Bool false)
+          ])
+        ]);
+        ("required", `List [`String "action"; `String "args"])
+      ]
+    ])
   ]
+
+(* --- Call Ollama API with optimized structured output --- *)
+
 
 (* --- Robust JSON extraction --- *)
 let extract_json_block (raw_reply : string) : (string, error) result =
@@ -217,7 +247,7 @@ let ask_ollama ?(model=Config.default_model) prompt =
         `Assoc [("role", `String "system"); ("content", `String system_prompt)];
         `Assoc [("role", `String "user"); ("content", `String prompt)]
       ]);
-      ("format", command_schema);
+      ("format", format_json);
       ("options", `Assoc [
         ("temperature", `Float 0.1);
         ("top_p", `Float 0.9)
@@ -269,17 +299,17 @@ let process_request model prompt =
   ask_ollama ~model prompt >>= function
   | Error err -> Lwt.return (Error err)
   | Ok reply ->
-      Lwt_io.printf "🤖 Model reply: %s\n\n" reply >>= fun () ->
+      let () = debug_log "🤖 Model reply: %s\n\n" reply in
       match extract_json_block reply with
       | Error err -> Lwt.return (Error err)
       | Ok json_str ->
-          Lwt_io.printf "📋 Extracted JSON: %s\n\n" json_str >>= fun () ->
+          let () = debug_log "📋 Extracted JSON: %s\n\n" json_str in
           try
             let cmd_json = Yojson.Basic.from_string json_str in
             match command_of_json cmd_json with
             | Error err -> Lwt.return (Error err)
             | Ok cmd ->
-                Lwt_io.printf "⚙️  Executing command...\n" >>= fun () ->
+                let () = debug_log "⚙️  Executing command...\n" in
                 Lwt.return (execute_command cmd)
           with
           | Yojson.Json_error msg ->
