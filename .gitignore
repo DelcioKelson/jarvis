@@ -1,1 +1,32 @@
+# OCaml build artifacts
 _build/
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxa
+*.cmxs
+*.cmt
+*.cmti
+*.install
+.merlin
+
+# opam
+_opam/
+*.opam.locked
+
+# Editor files
+.DS_Store
+*.swp
+*.swo
+*~
+.#*
+.vscode/
+.idea/
+*.iml
+
+# Dune
+dune-workspace.dev
