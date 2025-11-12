@@ -18,25 +18,27 @@ let ask ?(model=Config.default_model) input_type prompt =
     | Question ->
       "You are a helpful assistant. Answer the user's question in plain text."
   in
-  let body =
-    `Assoc [
-      ("model", `String model);
-      ("stream", `Bool false);
-      ("messages", `List [
-        `Assoc [("role", `String "system"); ("content", `String system_prompt)];
-        `Assoc [("role", `String "user"); ("content", `String prompt)]
-      ]);
-      ("format", Command.format_json);
-      ("options", `Assoc [
-        ("temperature", `Float 0.1);
-        ("top_p", `Float 0.9);
-        ("num_ctx", `Int Config.num_ctx);
-        ("num_predict", `Int Config.num_predict);
-        ("num_threads", `Int Config.num_threads)
-      ])
-    ]
-    |> Yojson.Basic.to_string
+  (* Build body with format only for Command input type *)
+  let base_body = [
+    ("model", `String model);
+    ("stream", `Bool false);
+    ("messages", `List [
+      `Assoc [("role", `String "system"); ("content", `String system_prompt)];
+      `Assoc [("role", `String "user"); ("content", `String prompt)]
+    ]);
+    ("options", `Assoc [
+      ("temperature", `Float 0.1);
+      ("top_p", `Float 0.9);
+      ("num_ctx", `Int Config.num_ctx);
+      ("num_predict", `Int Config.num_predict);
+      ("num_threads", `Int Config.num_threads)
+    ])
+  ] in
+  let body_with_format = match input_type with
+    | Command -> ("format", Command.format_json) :: base_body
+    | Question -> base_body
   in
+  let body = `Assoc body_with_format |> Yojson.Basic.to_string in
 
   let request =
     Cohttp_lwt_unix.Client.post

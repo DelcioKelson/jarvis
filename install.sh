@@ -81,8 +81,13 @@ echo "🏗️ Building Jarvis..."
 dune build jarvis.exe
 
 echo "🚀 Installing binary..."
-sudo cp _build/default/jarvis.exe /usr/local/bin/jarvis
+sudo cp ./_build/default/bin/main.exe /usr/local/bin/jarvis
 sudo chmod +x /usr/local/bin/jarvis
+
+clean up() {
+    echo "🧹 Cleaning up..."
+    dune clean
+}
 
 # -------------------------
 # 4. Finish
