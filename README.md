@@ -94,15 +94,6 @@ The project is organized into focused, single-responsibility modules:
 - **Executor**: Safe command execution with proper error handling
 - **Api**: Ollama API communication and request/response processing
 
-### Design Principles
-
-1. **Separation of Concerns**: Each module has a single, well-defined responsibility
-2. **Type Safety**: Extensive use of Result types and pattern matching
-3. **Interface Files**: All modules have `.mli` files defining clear public APIs
-4. **Error Handling**: Comprehensive error types with proper propagation
-5. **Documentation**: OCamldoc comments throughout the codebase
-
-For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 🛠️ Supported Commands
 
