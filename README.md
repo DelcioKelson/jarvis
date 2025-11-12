@@ -1,4 +1,4 @@
-#[WIP]
+# [WIP]
 
 # Jarvis - AI-powered CLI Assistant# Jarvis — AI Command Assistant
 
