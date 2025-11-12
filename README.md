@@ -1,4 +1,4 @@
-# 🧠 Jarvis - AI-powered CLI Assistant# 🧠 Jarvis — AI Command Assistant
+# Jarvis - AI-powered CLI Assistant# Jarvis — AI Command Assistant
 
 
 
@@ -10,17 +10,12 @@ A production-ready OCaml CLI assistant powered by [Ollama](https://ollama.com) t
 
 
 
-- 🤖 Natural language command execution## 🚀 Installation
-
-- 💬 Question answering mode
-
-- 🔒 Type-safe error handling with Result types```bash
-
-- 📦 Clean, modular architecturegit clone https://github.com/DelcioKelson/jarvis.git
-
-- 🚀 Production-ready code structurecd jarvis
-
-- 📝 Comprehensive documentation with `.mli` interfaceschmod +x install.sh
+-  Natural language command execution## 🚀 Installation
+-  Question answering mode
+-  Type-safe error handling with Result types```bash
+-  Clean, modular architecturegit clone https://github.com/DelcioKelson/jarvis.git
+-  Production-ready code structurecd jarvis
+-  Comprehensive documentation with `.mli` interfaceschmod +x install.sh
 
 ./install.sh
 
@@ -38,14 +33,8 @@ A production-ready OCaml CLI assistant powered by [Ollama](https://ollama.com) t
 git clone https://github.com/DelcioKelson/jarvis.git
 cd jarvis
 
-# Install dependencies
-opam install . --deps-only
-
-# Build the project
-dune build
-
-# Install the executable
-dune install
+chmod +x install.sh
+./install.sh
 ```
 
 ### Usage
