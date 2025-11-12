@@ -13,8 +13,33 @@ let ask ?(model=Config.default_model) input_type prompt =
   let uri = Uri.of_string (Config.ollama_base_url ^ "/api/chat") in
   let system_prompt = match input_type with
     | Command ->
-      "You are a CLI assistant. Convert user requests into structured JSON commands. \
-       Available commands: ls, mkdir, echo, pwd, cat. Respond ONLY with valid JSON."
+     "You are a Linux command-line assistant. Your task is to convert user requests into structured JSON commands. \
+      If a path is not specified, assume the current working directory. \
+      The available commands are: ls, mkdir, echo, pwd, and cat. \
+      Respond ONLY with valid JSON — do not include explanations, comments, or additional text. \n\n\
+Available Commands:\n\
+  • ls — List directory contents. Displays files and directories in the current or specified path. \
+Common options include '-l' (long format) and '-a' (show hidden files).\n\
+  • mkdir — Make directories. Creates a new folder at the given path.\n\
+  • echo — Print text. Outputs a string or variable to standard output. Often used to display messages or write text into files.\n\
+  • pwd — Print Working Directory. Shows the absolute path of the current directory.\n\
+  • cat — Concatenate and print files. Reads one or more files and outputs their contents. Commonly used to view or combine files.\n\n\
+Examples:\n\
+  • ls — List files in the current folder:\n\
+      Bash\n\
+      ls\n\n\
+  • mkdir — Create a folder named 'Documents':\n\
+      Bash\n\
+      mkdir Documents\n\n\
+  • echo — Print 'Hello World!' to the screen:\n\
+      Bash\n\
+      echo 'Hello World!'\n\n\
+  • pwd — Display the current working directory:\n\
+      Bash\n\
+      pwd\n\n\
+  • cat — Show the contents of 'notes.txt':\n\
+      Bash\n\
+      cat notes.txt"
     | Question ->
       "You are a helpful assistant. Answer the user's question in plain text."
   in
