@@ -59,9 +59,31 @@ let format_json =
           ])
         ]);
         ("required", `List [`String "action"; `String "args"])
+      ];
+      (* cat *)
+      `Assoc [
+        ("properties", `Assoc [
+          ("action", `Assoc [("const", `String "cat")]);
+          ("args", `Assoc [
+            ("type", `String "object");
+            ("properties", `Assoc [
+              ("path", `Assoc [("type", `String "string")])
+            ]);
+            ("required", `List [`String "path"]);
+            ("additionalProperties", `Bool false)
+          ])
+        ]);
+        ("required", `List [`String "action"; `String "args"])
+      ];
+      (* pwd *)
+      `Assoc [
+        ("properties", `Assoc [
+          ("action", `Assoc [("const", `String "pwd")]);
+          ("args", `Assoc [("type", `String "object"); ("properties", `Assoc []); ("additionalProperties", `Bool false)])
+        ]);
+        ("required", `List [`String "action"; `String "args"])
       ]
-    ])
-  ]
+  ])]
 
 (** Parse command from JSON *)
 let of_json json : (t, Error.error) result =
