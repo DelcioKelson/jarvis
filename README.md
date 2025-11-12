@@ -83,17 +83,6 @@ jarvis/
 └── README.md             # This file
 ```
 
-## 🏗️ Architecture
-
-The project is organized into focused, single-responsibility modules:
-
-- **Config**: Centralized configuration management (API URLs, models, timeouts)
-- **Error**: Strongly-typed error handling with custom error variants
-- **Utils**: Shared utilities (debug logging, JSON extraction helpers)
-- **Command**: Command type definitions and JSON schema-based parsing
-- **Executor**: Safe command execution with proper error handling
-- **Api**: Ollama API communication and request/response processing
-
 
 ## 🛠️ Supported Commands
 
@@ -118,14 +107,6 @@ let debug = ref false
 
 To enable debug logging, modify `Config.debug` before building, or add a runtime flag (future enhancement).
 
-## 📚 Dependencies
-
-- **cohttp-lwt-unix** (>= 5.0) - HTTP client with Lwt async support
-- **yojson** (>= 2.0) - JSON parsing and manipulation
-- **bos** (>= 0.2) - OS interaction primitives
-- **lwt** (>= 5.6) - Asynchronous programming library
-
-## 🔧 Development
 
 ### Building
 
@@ -166,34 +147,6 @@ dune build @fmt --auto-promote
 dune runtest
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure:
-- Code follows the existing style
-- All modules have corresponding `.mli` interface files
-- Documentation is updated
-- New features include tests (when testing framework is added)
-
-## 🐛 Troubleshooting
-
-**Timeout errors**: Increase `Config.request_timeout` if you see `TimeoutError`.
-
-**Invalid JSON responses**: Enable debug logging by setting `Config.debug := true` to see raw API responses.
-
-**Ollama connection issues**: Ensure Ollama is running at `http://localhost:11434`:
-```bash
-curl http://localhost:11434/api/tags
-```
-
-**Filesystem permission errors**: Ensure you have proper permissions for the operations you're attempting.
 
 ## 📝 License
 
