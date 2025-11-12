@@ -1,0 +1,3 @@
+(executable
+ (name jarvis)
+ (libraries cohttp-lwt-unix yojson bos lwt str))
