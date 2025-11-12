@@ -86,9 +86,5 @@ dune clean
 # 4. Finish
 # -------------------------
 echo "✅ Installation complete!"
-echo ""
-echo "You can now run:"
-echo "  jarvis \"make a folder called testdata\""
-echo ""
 echo "To verify Ollama works:"
 echo "  ollama run $MODEL"
