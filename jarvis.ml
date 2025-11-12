@@ -7,6 +7,11 @@ module Config = struct
   let default_model = "qwen2.5:0.5b"
   let request_timeout = 10.0 (* seconds *)
   let debug = ref false (* Set to false to disable debug output *)
+
+  let num_ctx = 512
+  let num_predict = 128
+  let num_threads = 8
+
 end
 
 (* --- Debug helper --- *)
@@ -250,7 +255,10 @@ let ask_ollama ?(model=Config.default_model) prompt =
       ("format", format_json);
       ("options", `Assoc [
         ("temperature", `Float 0.1);
-        ("top_p", `Float 0.9)
+        ("top_p", `Float 0.9);
+        ("num_ctx", `Int Config.num_ctx);
+        ("num_predict", `Int Config.num_predict);
+        ("num_threads", `Int Config.num_threads)
       ])
     ]
     |> Yojson.Basic.to_string
