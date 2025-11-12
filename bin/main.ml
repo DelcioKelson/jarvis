@@ -44,7 +44,9 @@ let () =
   ) in
 
   match result with
-  | Ok _ -> exit 0
+  | Ok output ->
+      Printf.printf " Jarvis:\n%s\n" output;
+      exit 0
   | Error err ->
       Printf.eprintf "❌ Error: %s\n" (Error.to_string err);
       exit 1
