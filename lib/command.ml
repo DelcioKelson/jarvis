@@ -112,3 +112,13 @@ let of_json json : (t, Error.error) result =
   | exn ->
       Utils.debug_log "Exception parsing command: %s" (Printexc.to_string exn);
       Error (Error.ParseError (Printexc.to_string exn))
+
+
+(** Convert command to human-readable string *)
+let to_string = function
+  | Ls None -> "ls"
+  | Ls (Some path) -> Printf.sprintf "ls %s" path
+  | Mkdir path -> Printf.sprintf "mkdir %s" path
+  | Echo text -> Printf.sprintf "echo \"%s\"" text
+  | Pwd -> "pwd"
+  | Cat path -> Printf.sprintf "cat %s" path

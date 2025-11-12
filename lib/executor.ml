@@ -2,6 +2,7 @@
 
 (** Execute a command safely *)
 let execute cmd : (string, Error.error) result =
+  let () = Printf.printf "Executing command : %s\n" (Command.to_string cmd) in
   try
     match cmd with
     | Command.Ls path ->

@@ -29,7 +29,6 @@ let parse_args () =
 
   let args = parse_model 2 [] in
   let model = Config.default_model in
-  let () = Printf.printf "Using model: %s\n" model in
   let prompt = String.concat " " (List.filter (fun s -> s <> model) args) in
 
   (input_type, model, prompt)
@@ -37,10 +36,6 @@ let parse_args () =
 (** Entry point *)
 let () =
   let (input_type, model, prompt) = parse_args () in
-  Printf.printf "🚀 Jarvis CLI Assistant\n";
-  Printf.printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-  Printf.printf "Model: %s\n" model;
-  Printf.printf "Prompt: %s\n\n" prompt;
 
   let result = Lwt_main.run (
     Lwt.catch
@@ -49,9 +44,7 @@ let () =
   ) in
 
   match result with
-  | Ok output ->
-      Printf.printf "✅ Result:\n%s\n" output;
-      exit 0
+  | Ok _ -> exit 0
   | Error err ->
       Printf.eprintf "❌ Error: %s\n" (Error.to_string err);
       exit 1

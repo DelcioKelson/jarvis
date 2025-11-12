@@ -69,25 +69,18 @@ echo "📚 Installing OCaml packages..."
 opam install -y dune cohttp-lwt-unix yojson bos lwt fpath
 
 
-# -------------------------
-# 3. Build Jarvis program
-# -------------------------
-if [[ ! -f "jarvis.ml" ]]; then
-    echo "❌ Could not find jarvis.ml — please run this script from your project root."
-    exit 1
-fi
+
 
 echo "🏗️ Building Jarvis..."
-dune build jarvis.exe
+dune build 
 
 echo "🚀 Installing binary..."
 sudo cp ./_build/default/bin/main.exe /usr/local/bin/jarvis
 sudo chmod +x /usr/local/bin/jarvis
 
-clean up() {
-    echo "🧹 Cleaning up..."
-    dune clean
-}
+
+echo "🧹 Cleaning up..."
+dune clean
 
 # -------------------------
 # 4. Finish

@@ -13,3 +13,6 @@ val format_json : Yojson.Basic.t
 
 val of_json : Yojson.Basic.t -> (t, Error.error) result
 (** Parse command from JSON *)
+
+val to_string : t -> string
+(** Convert command to human-readable string *)
