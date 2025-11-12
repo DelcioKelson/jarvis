@@ -1,8 +1,7 @@
 # Jarvis - AI-powered CLI Assistant# Jarvis — AI Command Assistant
 
 
-
-A production-ready OCaml CLI assistant powered by [Ollama](https://ollama.com) that can execute commands and answer questions through natural language.Jarvis is a small OCaml program that uses [Ollama](https://ollama.com) and a local model (e.g. `qwen2.5:0.5b`) to interpret natural language requests and execute safe system commands like `ls`, `mkdir`, and `echo`.
+CLI assistant powered by [Ollama](https://ollama.com) that can execute commands and answer questions through natural language.Jarvis is a small OCaml program that uses [Ollama](https://ollama.com) and a local model (e.g. `qwen2.5:0.5b`) to interpret natural language requests and execute safe system commands like `ls`, `mkdir`, and `echo`.
 
 
 
