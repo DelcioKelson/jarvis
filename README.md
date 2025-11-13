@@ -161,7 +161,6 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 Future enhancements:
 
 - [ ] Add comprehensive test suite
-- [ ] Add more shell commands (`mv`, `cp`, `rm`, etc.)
 - [ ] Configuration file support (`.jarvisrc`)
 - [ ] Command history and caching
 - [ ] Interactive mode
