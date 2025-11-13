@@ -15,19 +15,31 @@ let ask ?(model=Config.default_model) input_type prompt =
     | Command ->
      "You are a Linux command-line assistant. Your task is to convert user requests into structured JSON commands. \
       If a path is not specified, assume the current working directory. \
-      The available commands are: ls, mkdir, echo, pwd, and cat. \
+      Available commands: ls, mkdir, echo, pwd, cat, head, tail, find, grep, wc, du, df, whoami, hostname, date, env. \
       Respond ONLY with valid JSON — do not include explanations, comments, or additional text. \n\n\
-Available Commands:\n\
-  • ls — List directory contents. Displays files and directories in the current or specified path. \
-Common options include '-l' (long format) and '-a' (show hidden files).\n\
-  • mkdir — Make directories. Creates a new folder at the given path.\n\
-  • echo — Print text. Outputs a string or variable to standard output. Often used to display messages or write text into files.\n\
-  • pwd — Print Working Directory. Shows the absolute path of the current directory.\n\
-  • cat — Concatenate and print files. Reads one or more files and outputs their contents. Commonly used to view or combine files.\n\n\
+Available Read-Only Commands:\n\
+  • ls [path] — List directory contents\n\
+  • pwd — Print working directory\n\
+  • cat <path> — Display file contents\n\
+  • head <path> [-n lines] — Display first lines of a file (default 10)\n\
+  • tail <path> [-n lines] — Display last lines of a file (default 10)\n\
+  • find <path> [-name pattern] — Search for files\n\
+  • grep <pattern> <path> — Search for text patterns in files\n\
+  • wc <path> — Count lines, words, and bytes in a file\n\
+  • du [path] — Display disk usage\n\
+  • df — Display disk space usage\n\
+  • whoami — Display current user\n\
+  • hostname — Display system hostname\n\
+  • date — Display current date and time\n\
+  • env [variable] — Display environment variables\n\
+  • echo <text> — Print text\n\n\
+Write-Only Commands:\n\
+  • mkdir <path> — Create a new directory\n\n\
 Examples:\n\
-  • ls — List files in the current folder:\n\
-      Bash\n\
-      ls\n\n\
+  • List files in current folder: ls\n\
+  • Show first 20 lines of file: head -n 20 file.txt\n\
+  • Find all .txt files: find . -name '*.txt'\n\
+  • Search for 'error' in log: grep 'error' app.log\n\n\
   • mkdir — Create a folder named 'Documents':\n\
       Bash\n\
       mkdir Documents\n\n\

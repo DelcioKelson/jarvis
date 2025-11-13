@@ -35,5 +35,89 @@ let execute cmd : (string, Error.error) result =
         (match Bos.OS.File.read fpath with
         | Ok content -> Ok content
         | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Head { path; lines } ->
+        let fpath = Fpath.v path in
+        let n = Option.value lines ~default:10 in
+        let cmd = Bos.Cmd.(v "head" % "-n" % string_of_int n % Fpath.to_string fpath) in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Tail { path; lines } ->
+        let fpath = Fpath.v path in
+        let n = Option.value lines ~default:10 in
+        let cmd = Bos.Cmd.(v "tail" % "-n" % string_of_int n % Fpath.to_string fpath) in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Find { path; name } ->
+        let fpath = Fpath.v path in
+        let cmd = match name with
+          | None -> Bos.Cmd.(v "find" % Fpath.to_string fpath)
+          | Some n -> Bos.Cmd.(v "find" % Fpath.to_string fpath % "-name" % n)
+        in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Grep { pattern; path } ->
+        let fpath = Fpath.v path in
+        let cmd = Bos.Cmd.(v "grep" % pattern % Fpath.to_string fpath) in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Wc path ->
+        let fpath = Fpath.v path in
+        let cmd = Bos.Cmd.(v "wc" % Fpath.to_string fpath) in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Du path ->
+        let p = Option.value path ~default:"." in
+        let fpath = Fpath.v p in
+        let cmd = Bos.Cmd.(v "du" % "-h" % Fpath.to_string fpath) in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Df ->
+        let cmd = Bos.Cmd.(v "df" % "-h") in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Whoami ->
+        let cmd = Bos.Cmd.(v "whoami") in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Hostname ->
+        let cmd = Bos.Cmd.(v "hostname") in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Date ->
+        let cmd = Bos.Cmd.(v "date") in
+        (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+        | Ok (s, _) -> Ok s
+        | Error (`Msg e) -> Error (Error.ExecutionError e))
+
+    | Command.Env variable ->
+        (match variable with
+        | None ->
+            let cmd = Bos.Cmd.(v "env") in
+            (match Bos.OS.Cmd.run_out cmd |> Bos.OS.Cmd.out_string with
+            | Ok (s, _) -> Ok s
+            | Error (`Msg e) -> Error (Error.ExecutionError e))
+        | Some var ->
+            (match Bos.OS.Env.var var with
+            | Some value -> Ok (Printf.sprintf "%s=%s\n" var value)
+            | None -> Error (Error.ExecutionError (Printf.sprintf "Environment variable %s not set" var))))
   with
   | exn -> Error (Error.ExecutionError (Printexc.to_string exn))

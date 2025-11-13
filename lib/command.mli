@@ -7,6 +7,17 @@ type t =
   | Echo of string
   | Pwd
   | Cat of string
+  | Head of { path: string; lines: int option }
+  | Tail of { path: string; lines: int option }
+  | Find of { path: string; name: string option }
+  | Grep of { pattern: string; path: string }
+  | Wc of string
+  | Du of string option
+  | Df
+  | Whoami
+  | Hostname
+  | Date
+  | Env of string option
 
 val format_json : Yojson.Basic.t
 (** JSON Schema for structured output *)
