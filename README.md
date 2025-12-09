@@ -7,7 +7,7 @@ CLI assistant powered by [Ollama](https://ollama.com) that can execute commands 
 
 
 
-## ✨ Features---
+##  Features---
 
 
 
@@ -20,7 +20,7 @@ CLI assistant powered by [Ollama](https://ollama.com) that can execute commands 
 
 ./install.sh
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -51,7 +51,7 @@ jarvis -c "show current directory"
 jarvis -c "show contents of README.md"
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 The project follows a clean, modular architecture:
 
@@ -84,7 +84,7 @@ jarvis/
 ```
 
 
-## 🛠️ Supported Commands
+## Supported Commands
 
 Currently supported commands:
 
@@ -94,7 +94,7 @@ Currently supported commands:
 - `pwd` - Print working directory
 - `cat <path>` - Display file contents
 
-## ⚙️ Configuration
+## Configuration
 
 Default configuration in `lib/config.ml`:
 
@@ -139,7 +139,7 @@ dune clean
 dune build @fmt --auto-promote
 ```
 
-## 🧪 Testing
+## Testing
 
 (Tests to be added in future versions)
 
@@ -148,15 +148,15 @@ dune runtest
 ```
 
 
-## 📝 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 📋 Changelog
+## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-## 🗺️ Roadmap
+## Roadmap
 
 Future enhancements:
 
@@ -170,7 +170,7 @@ Future enhancements:
 - [ ] Logging to file with rotation
 - [ ] Shell completion scripts
 
-## 📞 Support
+## Support
 
 For issues, questions, or contributions, please open an issue on the [GitHub repository](https://github.com/DelcioKelson/jarvis).
 
