@@ -11,13 +11,15 @@ CLI assistant powered by [Ollama](https://ollama.com) that can execute commands 
 
 
 
--  Natural language command execution## 🚀 Installation
+-  Natural language command execution
 -  Question answering mode
 -  Type-safe error handling with Result types```bash
 -  Clean, modular architecturegit clone https://github.com/DelcioKelson/jarvis.git
 -  Production-ready code structurecd jarvis
 -  Comprehensive documentation with `.mli` interfaceschmod +x install.sh
 
+
+## Installation
 ./install.sh
 
 ##  Quick Start
