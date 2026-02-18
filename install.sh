@@ -16,7 +16,7 @@ error()   { echo -e "${RED}✗${NC} $1"; exit 1; }
 header()  { echo -e "\n${BOLD}${CYAN}── $1 ──${NC}\n"; }
 
 # ─── Configuration ───────────────────────────────────────────────
-MODEL="${JARVIS_MODEL:-qwen2.5:0.5b}"
+MODEL="${JARVIS_MODEL:-functiongemma:latest}"
 OCAML_SWITCH="5.3.0"
 INSTALL_DIR="/usr/local/bin"
 

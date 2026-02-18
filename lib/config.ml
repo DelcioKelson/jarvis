@@ -59,7 +59,7 @@ let get_config key default_value =
 
 let ollama_base_url = get_config "OLLAMA_BASE_URL" "http://localhost:11434"
 
-let default_model = get_config "JARVIS_MODEL" "qwen2.5:0.5b"
+let default_model = get_config "JARVIS_MODEL" "functiongemma:latest"
 
 let request_timeout =
   let t = get_config "JARVIS_TIMEOUT" "30.0" in
