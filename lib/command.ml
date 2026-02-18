@@ -260,10 +260,16 @@ let of_json json : (t, Error.error) result =
                 Ok (Mkdir path)
             | Error e -> Error e)
         | "echo" ->
-            (match Utils.get_required_string args "content" with
-            | Ok content ->
-                Utils.debug_log "Echo command with content: %s" content;
-                Ok (Echo content)
+            (* Try "text" first (matches schema), fall back to "content" for compat *)
+            let text_result =
+              match Utils.get_string_field args "text" with
+              | Some t -> Ok t
+              | None -> Utils.get_required_string args "content"
+            in
+            (match text_result with
+            | Ok text ->
+                Utils.debug_log "Echo command with text: %s" text;
+                Ok (Echo text)
             | Error e -> Error e)
         | "pwd" ->
             Utils.debug_log "Pwd command";

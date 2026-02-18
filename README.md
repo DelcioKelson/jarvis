@@ -1,41 +1,33 @@
-# [WIP]
+# Jarvis — AI-powered CLI Assistant
 
-# Jarvis - AI-powered CLI Assistant# Jarvis — AI Command Assistant
+A fast, type-safe CLI assistant powered by [Ollama](https://ollama.com) that converts natural language into safe system commands or answers questions directly.
 
+Built in OCaml with a clean modular architecture, Result-based error handling, and zero unsafe shell execution.
 
-CLI assistant powered by [Ollama](https://ollama.com) that can execute commands and answer questions through natural language.Jarvis is a small program that uses [Ollama](https://ollama.com) and a local model (e.g. `qwen2.5:0.5b`) to interpret natural language requests and execute safe system commands like `ls`, `mkdir`, and `echo`.
+## Features
 
+- **Natural language command execution** — describe what you want, Jarvis runs the right command
+- **Question answering** — ask anything and get a direct response
+- **Interactive REPL mode** — persistent session with command history
+- **Type-safe commands** — only whitelisted, safe commands are executed
+- **Structured JSON output** — Ollama returns JSON that maps to typed OCaml variants
+- **Colored terminal output** — clean, readable output with ANSI colors
+- **Configurable** — model, timeouts, threads via env vars or config files
+- **Health checks** — verifies Ollama connectivity before starting
 
-
-##  Features---
-
-
-
--  Natural language command execution
--  Question answering mode
--  Type-safe error handling with Result types```bash
--  Clean, modular architecturegit clone https://github.com/DelcioKelson/jarvis.git
--  Production-ready code structurecd jarvis
--  Comprehensive documentation with `.mli` interfaceschmod +x install.sh
-
-
-## Installation
-./install.sh
-
-##  Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - **OCaml** >= 4.14
 - **Dune** >= 3.10
-- **Ollama** running locally on port 11434
+- **Ollama** running locally (default: `http://localhost:11434`)
 
 ### Installation
 
 ```bash
 git clone https://github.com/DelcioKelson/jarvis.git
 cd jarvis
-
 chmod +x install.sh
 ./install.sh
 ```
@@ -46,131 +38,136 @@ chmod +x install.sh
 # Ask a question
 jarvis -q "What is the capital of France?"
 
-# Execute a command
+# Execute a command from natural language
 jarvis -c "list files in current directory"
 jarvis -c "create a directory called test"
-jarvis -c "show current directory"
-jarvis -c "show contents of README.md"
+jarvis -c "show first 20 lines of README.md"
+jarvis -c "find all .ml files"
+jarvis -c "show disk usage"
+
+# Use a specific model
+jarvis -m llama3 -q "Explain monads"
+
+# Start interactive mode
+jarvis -i
+
+# Enable debug output
+jarvis -d -c "show current directory"
+
+# Show help
+jarvis --help
+
+# Show version
+jarvis --version
+```
+
+### Interactive Mode
+
+Start a persistent session where you can ask questions or run commands:
+
+```bash
+jarvis -i
+```
+
+Inside the REPL:
+
+- Type a question directly to get an answer
+- Prefix with `/c` to execute a command (e.g., `/c list files`)
+- Type `/help` for available commands
+- Type `/model` to see current model
+- Type `/debug` to toggle debug mode
+- Type `/clear` to clear the screen
+- Type `exit` or `quit` to leave
+
+## Supported Commands
+
+| Command | Description | Example |
+| ------- | ----------- | ------- |
+| `ls [path]` | List directory contents | "list files in /tmp" |
+| `mkdir <path>` | Create directories | "create a folder called docs" |
+| `echo <text>` | Print text | "echo hello world" |
+| `pwd` | Print working directory | "show current directory" |
+| `cat <path>` | Display file contents | "show contents of config.ml" |
+| `head <path>` | First N lines of a file | "show first 20 lines of log.txt" |
+| `tail <path>` | Last N lines of a file | "show last 5 lines of error.log" |
+| `find <path>` | Search for files | "find all .txt files" |
+| `grep <pattern> <path>` | Search text in files | "search for 'error' in app.log" |
+| `wc <path>` | Count lines/words/bytes | "count lines in README.md" |
+| `du [path]` | Disk usage | "show disk usage" |
+| `df` | Disk space | "show free disk space" |
+| `whoami` | Current user | "who am I" |
+| `hostname` | System hostname | "show hostname" |
+| `date` | Current date/time | "what time is it" |
+| `env [var]` | Environment variables | "show PATH variable" |
+
+## Configuration
+
+Configuration is loaded in priority order:
+
+1. **System environment variables** (highest priority)
+2. **`.env` file** in current directory
+3. **`~/.jarvis.env`** (user-global config)
+4. **Built-in defaults**
+
+### Available Settings
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama API URL |
+| `JARVIS_MODEL` | `qwen2.5:0.5b` | Default Ollama model |
+| `JARVIS_TIMEOUT` | `30.0` | Request timeout (seconds) |
+| `JARVIS_NUM_CTX` | `512` | Context window size |
+| `JARVIS_NUM_PREDICT` | `256` | Max tokens to generate |
+| `JARVIS_NUM_THREADS` | `4` | CPU threads for inference |
+| `JARVIS_DEBUG` | `false` | Enable debug logging |
+
+### Example `.env`
+
+```bash
+OLLAMA_BASE_URL=http://localhost:11434
+JARVIS_MODEL=qwen2.5:0.5b
+JARVIS_TIMEOUT=30.0
+JARVIS_DEBUG=false
 ```
 
 ## Project Structure
 
-The project follows a clean, modular architecture:
-
-```
+```text
 jarvis/
-├── bin/                    # Executable entry point
-│   ├── dune
-│   └── main.ml            # CLI argument parsing and entry point
-├── lib/                    # Library modules
-│   ├── dune
-│   ├── jarvis.ml          # Main library interface
-│   ├── jarvis.mli
-│   ├── config.ml          # Configuration module
-│   ├── config.mli
-│   ├── error.ml           # Error types and handling
-│   ├── error.mli
-│   ├── utils.ml           # Utility functions
-│   ├── utils.mli
-│   ├── command.ml         # Command types and parsing
-│   ├── command.mli
-│   ├── executor.ml        # Command execution logic
-│   ├── executor.mli
-│   ├── api.ml             # Ollama API interaction
-│   └── api.mli
-├── dune-project           # Dune project configuration
-├── ARCHITECTURE.md        # Detailed architecture documentation
-├── CHANGELOG.md           # Version history
-├── LICENSE               # MIT License
-└── README.md             # This file
+├── bin/
+│   ├── dune               # Executable build config
+│   └── main.ml            # CLI parsing, REPL, entry point
+├── lib/
+│   ├── dune               # Library build config
+│   ├── jarvis.ml/mli      # Top-level module re-exports
+│   ├── config.ml/mli      # Configuration loading (.env, env vars)
+│   ├── error.ml/mli       # Error types with exit codes
+│   ├── utils.ml/mli       # Colors, JSON helpers, formatting
+│   ├── command.ml/mli     # Command types, JSON schema, parsing
+│   ├── executor.ml/mli    # Safe command execution via Bos
+│   └── api.ml/mli         # Ollama API client, health check
+├── dune-project
+├── install.sh
+├── .env.example
+└── README.md
 ```
 
+## Architecture
 
-## Supported Commands
-
-Currently supported commands:
-
-- `ls [path]` - List directory contents
-- `mkdir <path>` - Create directories
-- `echo <text>` - Echo text output
-- `pwd` - Print working directory
-- `cat <path>` - Display file contents
-
-## Configuration
-
-Default configuration in `lib/config.ml`:
-
-```ocaml
-let ollama_base_url = "http://localhost:11434"
-let default_model = "qwen2.5:0.5b"
-let request_timeout = 10.0
-let debug = ref false
+```text
+User Input → CLI Parser → Ollama API → JSON Parser → Command Type → Executor → Output
+                              ↓
+                        Health Check
 ```
 
-To enable debug logging, modify `Config.debug` before building, or add a runtime flag (future enhancement).
-
-
-### Building
-
-```bash
-dune build
-```
-
-### Watch mode for development
-
-```bash
-dune build --watch
-```
-
-### Generate documentation
-
-```bash
-dune build @doc
-# Documentation will be in _build/default/_doc/_html/
-```
-
-### Clean build artifacts
-
-```bash
-dune clean
-```
-
-### Format code (requires ocamlformat)
-
-```bash
-dune build @fmt --auto-promote
-```
-
-## Testing
-
-(Tests to be added in future versions)
-
-```bash
-dune runtest
-```
-
+- **Commands** are represented as OCaml variant types — only valid commands can be constructed
+- **Execution** uses [Bos](https://erratique.ch/software/bos) for safe OS interaction (no `system()` calls)
+- **Errors** are propagated as `Result` types — no exceptions in the happy path
+- **API responses** are validated through JSON schema enforcement in Ollama
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history.
-
-## Roadmap
-
-Future enhancements:
-
-- [ ] Add comprehensive test suite
-- [ ] Add more shell commands (`cp`, etc.)
-- [ ] Configuration file support (`.jarvisrc`)
-- [ ] Command history and caching
-- [ ] Interactive mode
-- [ ] Plugin system for custom commands
-- [ ] Remote Ollama server support
-- [ ] Logging to file with rotation
-- [ ] Shell completion scripts
+MIT License — see [LICENSE](LICENSE) for details.
 
 ## Support
 
@@ -178,4 +175,4 @@ For issues, questions, or contributions, please open an issue on the [GitHub rep
 
 ---
 
-Made with ❤️ using OCaml and Ollama
+Made with OCaml and Ollama

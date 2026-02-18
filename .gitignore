@@ -30,3 +30,8 @@ _opam/
 
 # Dune
 dune-workspace.dev
+
+# Environment / secrets
+.env
+*.env
+!.env.example

@@ -1,6 +1,6 @@
 (lang dune 3.10)
 (name jarvis)
-(version 1.0.0)
+(version 2.0.0)
 (generate_opam_files true)
 
 (source (github DelcioKelson/jarvis))
@@ -11,7 +11,7 @@
 (package
  (name jarvis)
  (synopsis "AI-powered CLI assistant using Ollama")
- (description "Jarvis is a CLI assistant that uses Ollama to execute commands and answer questions")
+ (description "Jarvis is a CLI assistant that uses Ollama to execute commands and answer questions through natural language. Features interactive REPL mode, colored output, and type-safe command execution.")
  (depends
   (ocaml (>= 4.14))
   (dune (>= 3.10))

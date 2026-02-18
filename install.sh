@@ -1,113 +1,143 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-echo "🚀 Installing Ollama and Jarvis AI Assistant..."
+# ─── Colors ──────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-# -------------------------
-# 1. Install Ollama
-# -------------------------
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if ! command -v curl &> /dev/null; then
-        echo "Installing curl..."
-        sudo apt update && sudo apt install -y curl
-    fi
-    if ! command -v ollama &> /dev/null; then
-        echo "📦 Installing Ollama..."
-        curl -fsSL https://ollama.com/install.sh | sh
-    fi
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    if ! command -v brew &> /dev/null; then
-        echo "Homebrew not found, installing..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-    brew install ollama
+info()    { echo -e "${CYAN}ℹ${NC} $1"; }
+success() { echo -e "${GREEN}✓${NC} $1"; }
+warn()    { echo -e "${YELLOW}⚠${NC} $1"; }
+error()   { echo -e "${RED}✗${NC} $1"; exit 1; }
+header()  { echo -e "\n${BOLD}${CYAN}── $1 ──${NC}\n"; }
+
+# ─── Configuration ───────────────────────────────────────────────
+MODEL="${JARVIS_MODEL:-qwen2.5:0.5b}"
+OCAML_SWITCH="5.3.0"
+INSTALL_DIR="/usr/local/bin"
+
+header "Installing Jarvis AI Assistant"
+
+# ─── 1. Install Ollama ───────────────────────────────────────────
+header "Step 1: Ollama"
+
+if command -v ollama &>/dev/null; then
+    success "Ollama already installed"
 else
-    echo "❌ Unsupported OS: $OSTYPE"
-    exit 1
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if ! command -v curl &>/dev/null; then
+            info "Installing curl..."
+            sudo apt update && sudo apt install -y curl
+        fi
+        info "Installing Ollama..."
+        curl -fsSL https://ollama.com/install.sh | sh
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        if ! command -v brew &>/dev/null; then
+            info "Installing Homebrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        brew install ollama
+    else
+        error "Unsupported OS: $OSTYPE"
+    fi
+    success "Ollama installed"
 fi
 
-echo "✅ Ollama installed!"
-
 # Start Ollama if not running
-if ! pgrep -x "ollama" > /dev/null; then
-    echo "▶️ Starting Ollama service..."
-    nohup ollama serve > /dev/null 2>&1 &
+if ! pgrep -x "ollama" >/dev/null 2>&1; then
+    info "Starting Ollama service..."
+    nohup ollama serve >/dev/null 2>&1 &
     sleep 3
 fi
 
 # Pull the model
-MODEL="qwen2.5:0.5b"
-echo "🧠 Downloading model: $MODEL"
-ollama pull "$MODEL" || {
-    echo "❌ Failed to pull $MODEL — check your Ollama installation or model name"
-    exit 1
-}
-echo "✅ Model ready!"
+info "Pulling model: $MODEL"
+ollama pull "$MODEL" || error "Failed to pull $MODEL"
+success "Model ready: $MODEL"
 
-echo "🦫 Installing OCaml environment..."
+# ─── 2. Install OCaml ────────────────────────────────────────────
+header "Step 2: OCaml Environment"
 
-if ! command -v opam &> /dev/null; then
-    sudo apt update
-    sudo apt install -y opam build-essential pkg-config m4 libev-dev libgmp-dev git
+if ! command -v opam &>/dev/null; then
+    info "Installing system dependencies..."
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt update
+        sudo apt install -y opam build-essential pkg-config m4 libev-dev libgmp-dev git
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install opam pkg-config libev gmp
+    fi
 fi
 
-echo "🔧 Initializing OPAM..."
-opam init -y --disable-sandboxing
-eval $(opam env)
+if ! opam var root &>/dev/null 2>&1; then
+    info "Initializing OPAM..."
+    opam init -y --disable-sandboxing
+fi
+eval "$(opam env)"
 
-# Use latest OCaml 5.x switch
-OCAML_SWITCH="5.3.0"
-
-if ! opam switch list | grep -q "$OCAML_SWITCH"; then
-    echo "📦 Creating OCaml $OCAML_SWITCH switch..."
+if ! opam switch list 2>/dev/null | grep -q "$OCAML_SWITCH"; then
+    info "Creating OCaml $OCAML_SWITCH switch..."
     opam switch create "$OCAML_SWITCH" ocaml-base-compiler."$OCAML_SWITCH"
 fi
-eval $(opam env)
+eval "$(opam env --switch=$OCAML_SWITCH)"
+success "OCaml $OCAML_SWITCH ready"
 
-echo "📚 Installing OCaml packages..."
+info "Installing OCaml packages..."
 opam install -y dune cohttp-lwt-unix yojson bos lwt fpath
+success "Packages installed"
 
+# ─── 3. Build Jarvis ─────────────────────────────────────────────
+header "Step 3: Build & Install"
 
+info "Building Jarvis..."
+dune build || error "Build failed"
+success "Build complete"
 
+info "Installing binary to $INSTALL_DIR..."
+sudo cp ./_build/default/bin/main.exe "$INSTALL_DIR/jarvis"
+sudo chmod +x "$INSTALL_DIR/jarvis"
+success "Installed: $INSTALL_DIR/jarvis"
 
-echo "🏗️ Building Jarvis..."
-dune build 
+# ─── 4. Create config ────────────────────────────────────────────
+header "Step 4: Configuration"
 
-echo "🚀 Installing binary..."
-sudo cp ./_build/default/bin/main.exe /usr/local/bin/jarvis
-sudo chmod +x /usr/local/bin/jarvis
-
-# Create .jarvis.env configuration file
-echo "🔧 Creating configuration file..."
-if [ ! -f ~/.jarvis.env ]; then
-    cat > ~/.jarvis.env << 'EOF'
+CONFIG_FILE="$HOME/.jarvis.env"
+if [ ! -f "$CONFIG_FILE" ]; then
+    cat > "$CONFIG_FILE" << EOF
 # Jarvis AI Assistant Configuration
 
-# Ollama API Configuration
+# Ollama API
 OLLAMA_BASE_URL=http://localhost:11434
-JARVIS_MODEL=gemma3:270m
+JARVIS_MODEL=$MODEL
 
-# Request Configuration
-JARVIS_TIMEOUT=10.0
+# Performance
+JARVIS_TIMEOUT=30.0
 JARVIS_NUM_CTX=512
-JARVIS_NUM_PREDICT=128
-JARVIS_NUM_THREADS=12
+JARVIS_NUM_PREDICT=256
+JARVIS_NUM_THREADS=4
 
-# Debug Mode (set to true or 1 to enable)
+# Debug
 JARVIS_DEBUG=false
 EOF
-    echo "✅ Created ~/.jarvis.env"
+    success "Created $CONFIG_FILE"
 else
-    echo "ℹ️  ~/.jarvis.env already exists, skipping"
+    warn "$CONFIG_FILE already exists, skipping"
 fi
 
-echo "🧹 Cleaning up..."
+# ─── 5. Clean up ─────────────────────────────────────────────────
 dune clean
 
-# -------------------------
-# 4. Finish
-# -------------------------
-echo "✅ Installation complete!"
-echo "To verify Ollama works:"
-echo "  ollama run $MODEL"
+# ─── Done ─────────────────────────────────────────────────────────
+header "Installation Complete!"
+echo -e "  ${BOLD}Try it:${NC}"
+echo -e "    jarvis -q \"What is the capital of France?\""
+echo -e "    jarvis -c \"list files in current directory\""
+echo -e "    jarvis -i    ${CYAN}# interactive mode${NC}"
+echo -e "    jarvis --help"
+echo ""
+echo -e "  ${BOLD}Config:${NC} $CONFIG_FILE"
+echo -e "  ${BOLD}Model:${NC}  $MODEL"
+echo ""
