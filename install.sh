@@ -78,6 +78,29 @@ echo "🚀 Installing binary..."
 sudo cp ./_build/default/bin/main.exe /usr/local/bin/jarvis
 sudo chmod +x /usr/local/bin/jarvis
 
+# Create .jarvis.env configuration file
+echo "🔧 Creating configuration file..."
+if [ ! -f ~/.jarvis.env ]; then
+    cat > ~/.jarvis.env << 'EOF'
+# Jarvis AI Assistant Configuration
+
+# Ollama API Configuration
+OLLAMA_BASE_URL=http://localhost:11434
+JARVIS_MODEL=gemma3:270m
+
+# Request Configuration
+JARVIS_TIMEOUT=10.0
+JARVIS_NUM_CTX=512
+JARVIS_NUM_PREDICT=128
+JARVIS_NUM_THREADS=12
+
+# Debug Mode (set to true or 1 to enable)
+JARVIS_DEBUG=false
+EOF
+    echo "✅ Created ~/.jarvis.env"
+else
+    echo "ℹ️  ~/.jarvis.env already exists, skipping"
+fi
 
 echo "🧹 Cleaning up..."
 dune clean

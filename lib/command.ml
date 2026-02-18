@@ -353,7 +353,6 @@ let of_json json : (t, Error.error) result =
       Error (Error.ParseError (Printexc.to_string exn))
 
 
-(** Convert command to human-readable string *)
 let to_string = function
   | Ls None -> "ls"
   | Ls (Some path) -> Printf.sprintf "ls %s" path
