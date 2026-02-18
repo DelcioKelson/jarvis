@@ -37,16 +37,27 @@ let load_env_file path =
     with _ -> []
   else []
 
-(** Env vars loaded from config files (project .env first, then ~/.jarvis.env) *)
+(** Env vars loaded from config files (priority: project .env > XDG config > legacy ~/.jarvis.env) *)
 let env_vars =
-  let home_env =
+  let legacy_env =
     match Sys.getenv_opt "HOME" with
     | Some home -> load_env_file (Filename.concat home ".jarvis.env")
     | None -> []
   in
+  let xdg_env =
+    let config_dir = match Sys.getenv_opt "XDG_CONFIG_HOME" with
+      | Some dir -> dir
+      | None ->
+          match Sys.getenv_opt "HOME" with
+          | Some home -> Filename.concat home ".config"
+          | None -> ""
+    in
+    if config_dir = "" then []
+    else load_env_file (Filename.concat (Filename.concat config_dir "jarvis") "config.env")
+  in
   let local_env = load_env_file ".env" in
-  (* local .env overrides ~/.jarvis.env *)
-  local_env @ home_env
+  (* local .env overrides XDG config overrides legacy ~/.jarvis.env *)
+  local_env @ xdg_env @ legacy_env
 
 let get_config key default_value =
   (* Priority: 1. System env var, 2. .env file (project), 3. ~/.jarvis.env, 4. default *)
