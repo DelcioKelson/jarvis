@@ -23,12 +23,16 @@ NC := \033[0m
 
 .PHONY: all build install uninstall reinstall clean dev doc help
 
+# Load opam environment
+OPAM_ENV := $(shell eval $$(opam env) && env | grep -E '^(PATH|OCAML|CAML|OPAM)' | sed 's/=/:=/' | sed 's/^/export /')
+$(eval $(OPAM_ENV))
+
 all: build
 
 # ── Build ───────────────────────────────────────────────────────
 build:
 	@printf "$(CYAN)Building $(BIN_NAME)...$(NC)\n"
-	@dune build
+	@eval $$(opam env) && dune build
 	@printf "$(GREEN)✓ Build complete$(NC) → $(BUILD_EXE)\n"
 
 # ── Install ─────────────────────────────────────────────────────
@@ -100,16 +104,16 @@ reinstall: clean install
 # ── Clean ───────────────────────────────────────────────────────
 clean:
 	@printf "$(CYAN)Cleaning...$(NC)\n"
-	@dune clean
+	@eval $$(opam env) && dune clean
 	@printf "$(GREEN)✓ Clean$(NC)\n"
 
 # ── Dev ─────────────────────────────────────────────────────────
 dev:
-	@dune build --watch
+	@eval $$(opam env) && dune build --watch
 
 # ── Doc ─────────────────────────────────────────────────────────
 doc:
-	@dune build @doc
+	@eval $$(opam env) && dune build @doc
 	@printf "$(GREEN)✓ Docs$(NC) → _build/default/_doc/_html/index.html\n"
 
 # ── Help ────────────────────────────────────────────────────────
