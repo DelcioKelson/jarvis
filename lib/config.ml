@@ -68,9 +68,11 @@ let get_config key default_value =
       | Some v -> v
       | None -> default_value
 
-let ollama_base_url = get_config "OLLAMA_BASE_URL" "http://localhost:11434"
+let api_base_url = get_config "JARVIS_API_BASE_URL" "https://api.groq.com/openai/v1"
 
-let default_model = get_config "JARVIS_MODEL" "functiongemma:latest"
+let api_key = get_config "JARVIS_API_KEY" ""
+
+let default_model = get_config "JARVIS_MODEL" "llama-3.3-70b-versatile"
 
 let request_timeout =
   let t = get_config "JARVIS_TIMEOUT" "30.0" in
@@ -79,15 +81,3 @@ let request_timeout =
 let debug =
   let d = get_config "JARVIS_DEBUG" "false" in
   ref (d = "true" || d = "1")
-
-let num_ctx =
-  let n = get_config "JARVIS_NUM_CTX" "512" in
-  try int_of_string n with _ -> 512
-
-let num_predict =
-  let n = get_config "JARVIS_NUM_PREDICT" "256" in
-  try int_of_string n with _ -> 256
-
-let num_threads =
-  let n = get_config "JARVIS_NUM_THREADS" "4" in
-  try int_of_string n with _ -> 4

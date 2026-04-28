@@ -32,7 +32,7 @@ let usage_text = Printf.sprintf
   -i, --interactive       Start interactive REPL mode
 
 %s
-  -m, --model <name>      Override the Ollama model (default: %s)
+  -m, --model <name>      Override the model (default: %s)
   -d, --debug             Enable debug output
   -h, --help              Show this help message
   -v, --version           Show version
@@ -49,16 +49,17 @@ let usage_text = Printf.sprintf
   Config is loaded from (in priority order):
     1. Environment variables
     2. .env file in current directory
-    3. ~/.jarvis.env
+    3. ~/.config/jarvis/config.env
+    4. ~/.jarvis.env
 
-  Supported env vars:
-    OLLAMA_BASE_URL   (default: http://localhost:11434)
-    JARVIS_MODEL      (default: %s)
-    JARVIS_TIMEOUT    (default: 30.0)
-    JARVIS_NUM_CTX    (default: 512)
-    JARVIS_NUM_PREDICT (default: 256)
-    JARVIS_NUM_THREADS (default: 4)
-    JARVIS_DEBUG      (default: false)
+  Required env vars:
+    JARVIS_API_KEY         API key for the LLM provider
+
+  Optional env vars:
+    JARVIS_API_BASE_URL    (default: https://api.groq.com/openai/v1)
+    JARVIS_MODEL           (default: %s)
+    JARVIS_TIMEOUT         (default: 30.0)
+    JARVIS_DEBUG           (default: false)
 |}
   (Utils.bold "jarvis") Config.version
   (Utils.bold "USAGE")
@@ -222,6 +223,16 @@ let () =
   (* Apply debug flag *)
   if opts.debug then Config.debug := true;
 
+  (* Fail fast if the API key is not configured, except for --help / --version *)
+  (match opts.mode with
+  | ShowHelp | ShowVersion -> ()
+  | _ ->
+      if Config.api_key = "" then begin
+        Utils.print_error
+          "JARVIS_API_KEY is not set. Add it to your .env file or export it as an environment variable.";
+        exit (Error.exit_code (Error.ConfigError "missing api key"))
+      end);
+
   match opts.mode with
   | ShowHelp ->
       Printf.printf "%s\n" usage_text;
@@ -233,7 +244,7 @@ let () =
       (* Health check before starting interactive mode *)
       (match Lwt_main.run (Api.health_check ()) with
       | Ok () ->
-          Utils.debug_log "Ollama is reachable";
+          Utils.debug_log "API endpoint is reachable";
           run_interactive opts.model
       | Error err ->
           Utils.print_error (Error.to_string err);

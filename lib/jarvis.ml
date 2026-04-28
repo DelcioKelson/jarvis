@@ -1,4 +1,4 @@
-(** Jarvis - AI-powered CLI assistant using Ollama *)
+(** Jarvis - AI-powered CLI assistant using OpenAI-compatible APIs *)
 
 (** {1 Modules} *)
 
@@ -18,4 +18,4 @@ module Executor = Executor
 (** Command execution *)
 
 module Api = Api
-(** Ollama API interaction *)
+(** OpenAI-compatible API interaction *)

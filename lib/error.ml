@@ -14,11 +14,11 @@ let to_string = function
   | ParseError msg -> Printf.sprintf "Parse error: %s" msg
   | ExecutionError msg -> Printf.sprintf "Execution error: %s" msg
   | NetworkError msg -> Printf.sprintf "Network error: %s" msg
-  | TimeoutError -> "Request timed out — is Ollama running? Try increasing JARVIS_TIMEOUT"
+  | TimeoutError -> "Request timed out — check your network connection or increase JARVIS_TIMEOUT"
   | UnknownCommand cmd -> Printf.sprintf "Unknown command: %s" cmd
   | ValidationError msg -> Printf.sprintf "Validation error: %s" msg
   | ConfigError msg -> Printf.sprintf "Configuration error: %s" msg
-  | ConnectionError msg -> Printf.sprintf "Connection error: %s — is Ollama running at the configured URL?" msg
+  | ConnectionError msg -> Printf.sprintf "Connection error: %s — check JARVIS_API_BASE_URL and JARVIS_API_KEY" msg
 
 let exit_code = function
   | ParseError _ -> 2

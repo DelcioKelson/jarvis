@@ -1,4 +1,4 @@
-(** Ollama API interaction module *)
+(** OpenAI-compatible API interaction module *)
 
 open Lwt.Infix
 open Yojson.Basic.Util
@@ -8,19 +8,27 @@ type input_type =
   | Command
   | Question
 
-(** Check if Ollama is reachable *)
+(** Check if the API endpoint is reachable *)
 let health_check () =
-  let uri = Uri.of_string (Config.ollama_base_url ^ "/api/tags") in
+  if Config.api_key = "" then
+    Lwt.return (Error (Error.ConnectionError "JARVIS_API_KEY is not set"))
+  else
+  let uri = Uri.of_string (Config.api_base_url ^ "/models") in
+  let headers =
+    Cohttp.Header.of_list [
+      ("Authorization", "Bearer " ^ Config.api_key)
+    ]
+  in
   Lwt.catch
     (fun () ->
       Lwt.pick [
-        (Cohttp_lwt_unix.Client.get uri >>= fun (resp, _body) ->
+        (Cohttp_lwt_unix.Client.get ~headers uri >>= fun (resp, _body) ->
          let status = Cohttp.Response.status resp in
          if Cohttp.Code.(is_success (code_of_status status)) then
            Lwt.return (Ok ())
          else
            Lwt.return (Error (Error.ConnectionError
-             (Printf.sprintf "Ollama returned HTTP %d"
+             (Printf.sprintf "API returned HTTP %d"
                (Cohttp.Code.code_of_status status)))));
         (Lwt_unix.sleep 5.0 >>= fun () ->
          Lwt.return (Error (Error.ConnectionError "Connection timed out")))
@@ -67,35 +75,37 @@ let system_prompt_for = function
     "You are a helpful assistant. Answer the user's question clearly and concisely in plain text. \
      Do not use markdown formatting unless specifically asked."
 
-(** Call Ollama API with timeout *)
+(** Call OpenAI-compatible API with timeout *)
 let ask ?(model = Config.default_model) input_type prompt =
-  let uri = Uri.of_string (Config.ollama_base_url ^ "/api/chat") in
+  if Config.api_key = "" then
+    Lwt.return (Error (Error.ConnectionError "JARVIS_API_KEY is not set"))
+  else
+  let uri = Uri.of_string (Config.api_base_url ^ "/chat/completions") in
   let base_body = [
     ("model", `String model);
     ("stream", `Bool false);
+    ("temperature", `Float 0.1);
     ("messages", `List [
       `Assoc [("role", `String "system"); ("content", `String (system_prompt_for input_type))];
       `Assoc [("role", `String "user"); ("content", `String prompt)]
-    ]);
-    ("options", `Assoc [
-      ("temperature", `Float 0.1);
-      ("top_p", `Float 0.9);
-      ("num_ctx", `Int Config.num_ctx);
-      ("num_predict", `Int Config.num_predict);
-      ("num_threads", `Int Config.num_threads)
     ])
   ] in
   let body_with_format = match input_type with
-    | Command -> ("format", Command.format_json) :: base_body
+    | Command -> ("response_format", `Assoc [("type", `String "json_object")]) :: base_body
     | Question -> base_body
   in
   let body = `Assoc body_with_format |> Yojson.Basic.to_string in
   Utils.debug_log "Request body: %s" body;
 
+  let headers = Cohttp.Header.of_list [
+    ("Content-Type", "application/json");
+    ("Authorization", "Bearer " ^ Config.api_key)
+  ] in
+
   let request =
     Cohttp_lwt_unix.Client.post
       ~body:(Cohttp_lwt.Body.of_string body)
-      ~headers:(Cohttp.Header.init_with "Content-Type" "application/json")
+      ~headers
       uri
     >>= fun (resp, body) ->
     let status = Cohttp.Response.status resp in
@@ -104,9 +114,13 @@ let ask ?(model = Config.default_model) input_type prompt =
       (try
         Utils.debug_log "Raw API response: %s" b;
         let json = Yojson.Basic.from_string b in
-        match Utils.get_string_field (json |> member "message") "content" with
-        | Some content -> Ok content
-        | None -> Error (Error.NetworkError "Response missing 'content' field")
+        let choices = json |> member "choices" in
+        (match choices with
+        | `List (choice :: _) ->
+            (match Utils.get_string_field (choice |> member "message") "content" with
+            | Some content -> Ok content
+            | None -> Error (Error.NetworkError "Response missing 'content' field"))
+        | _ -> Error (Error.NetworkError "Response missing 'choices' field"))
       with exn ->
         Error (Error.NetworkError ("Failed to parse response: " ^ Printexc.to_string exn)))
     else

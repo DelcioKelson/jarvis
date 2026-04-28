@@ -6,6 +6,15 @@ let run_cmd cmd =
   | Ok (s, _) -> Ok s
   | Error (`Msg e) -> Error (Error.ExecutionError e)
 
+(** Reject paths that escape the filesystem root via traversal sequences *)
+let validate_path p =
+  (* Normalize the path and reject anything containing ".." after split *)
+  let parts = String.split_on_char '/' p in
+  if List.mem ".." parts then
+    Error (Error.ValidationError
+      (Printf.sprintf "Path traversal not allowed: %s" p))
+  else Ok p
+
 (** Execute a command safely *)
 let execute cmd : (string, Error.error) result =
   Utils.print_command (Command.to_string cmd);
@@ -13,18 +22,24 @@ let execute cmd : (string, Error.error) result =
     match cmd with
     | Command.Ls path ->
         let p = Option.value path ~default:"." in
+        (match validate_path p with
+        | Error e -> Error e
+        | Ok _ ->
         let fpath = Fpath.v p in
         if not (Fpath.is_rel fpath || Fpath.is_abs fpath) then
           Error (Error.ValidationError (Printf.sprintf "Invalid path: %s" p))
         else
-          run_cmd Bos.Cmd.(v "ls" % "-lh" % Fpath.to_string fpath)
+          run_cmd Bos.Cmd.(v "ls" % "-lh" % Fpath.to_string fpath))
 
     | Command.Mkdir path ->
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
         let dir = Fpath.v path in
         (match Bos.OS.Dir.create ~mode:0o755 dir with
         | Ok true  -> Ok (Printf.sprintf "Directory created: %s" path)
         | Ok false -> Ok (Printf.sprintf "Directory already exists: %s" path)
-        | Error (`Msg e) -> Error (Error.ExecutionError e))
+        | Error (`Msg e) -> Error (Error.ExecutionError e)))
 
     | Command.Echo text ->
         Ok text
@@ -35,36 +50,57 @@ let execute cmd : (string, Error.error) result =
         | Error (`Msg e) -> Error (Error.ExecutionError e))
 
     | Command.Cat path ->
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
         let fpath = Fpath.v path in
         (match Bos.OS.File.read fpath with
         | Ok content -> Ok content
-        | Error (`Msg e) -> Error (Error.ExecutionError e))
+        | Error (`Msg e) -> Error (Error.ExecutionError e)))
 
     | Command.Head { path; lines } ->
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
         let n = Option.value lines ~default:10 in
-        run_cmd Bos.Cmd.(v "head" % "-n" % string_of_int n % path)
+        run_cmd Bos.Cmd.(v "head" % "-n" % string_of_int n % path))
 
     | Command.Tail { path; lines } ->
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
         let n = Option.value lines ~default:10 in
-        run_cmd Bos.Cmd.(v "tail" % "-n" % string_of_int n % path)
+        run_cmd Bos.Cmd.(v "tail" % "-n" % string_of_int n % path))
 
     | Command.Find { path; name } ->
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
         let cmd = match name with
           | None   -> Bos.Cmd.(v "find" % path)
           | Some n -> Bos.Cmd.(v "find" % path % "-name" % n)
         in
-        run_cmd cmd
+        run_cmd cmd)
 
     | Command.Grep { pattern; path } ->
-        run_cmd Bos.Cmd.(v "grep" % "--color=never" % pattern % path)
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
+        run_cmd Bos.Cmd.(v "grep" % "--color=never" % pattern % path))
 
     | Command.Wc path ->
-        run_cmd Bos.Cmd.(v "wc" % path)
+        (match validate_path path with
+        | Error e -> Error e
+        | Ok _ ->
+        run_cmd Bos.Cmd.(v "wc" % path))
 
     | Command.Du path ->
         let p = Option.value path ~default:"." in
+        (match validate_path p with
+        | Error e -> Error e
+        | Ok _ ->
         let fpath = Fpath.v p in
-        run_cmd Bos.Cmd.(v "du" % "-sh" % Fpath.to_string fpath)
+        run_cmd Bos.Cmd.(v "du" % "-sh" % Fpath.to_string fpath))
 
     | Command.Df ->
         run_cmd Bos.Cmd.(v "df" % "-h")

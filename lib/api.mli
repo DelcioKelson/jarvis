@@ -1,4 +1,4 @@
-(** Ollama API interaction module *)
+(** OpenAI-compatible API interaction module *)
 
 (** Input type for API requests *)
 type input_type =
@@ -6,7 +6,7 @@ type input_type =
   | Question
 
 val health_check : unit -> (unit, Error.error) result Lwt.t
-(** Check if Ollama is reachable. Returns Ok () if the service responds. *)
+(** Check if the API endpoint is reachable and the API key is set. *)
 
 val ask : ?model:string -> input_type -> string -> (string, Error.error) result Lwt.t
 (** Call Ollama API with the given input type and prompt *)

@@ -10,8 +10,8 @@
 
 (package
  (name jarvis)
- (synopsis "AI-powered CLI assistant using Ollama")
- (description "Jarvis is a CLI assistant that uses Ollama to execute commands and answer questions through natural language. Features interactive REPL mode, colored output, and type-safe command execution.")
+ (synopsis "AI-powered CLI assistant using any OpenAI-compatible API")
+ (description "Jarvis is a CLI assistant that uses any OpenAI-compatible API to execute commands and answer questions through natural language. Features interactive REPL mode, colored output, and type-safe command execution.")
  (depends
   (ocaml (>= 4.14))
   (dune (>= 3.10))
