@@ -12,7 +12,7 @@ val version : string
 (** Current version of Jarvis *)
 
 val api_base_url : string
-(** Base URL for the OpenAI-compatible API. Can be set via JARVIS_API_BASE_URL. Default: https://api.openai.com/v1 *)
+(** Base URL for the OpenAI-compatible API. Can be set via JARVIS_API_BASE_URL. Default: https://api.groq.com/openai/v1 *)
 
 val api_key : string
 (** API key for the LLM provider. Must be set via JARVIS_API_KEY. *)

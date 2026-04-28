@@ -18,4 +18,5 @@
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 2.0))
   (bos (>= 0.2))
-  (lwt (>= 5.6))))
+  (lwt (>= 5.6))
+  (lwt_ssl (>= 1.2))))
