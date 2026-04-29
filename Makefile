@@ -33,7 +33,7 @@ all: build
 # ── Deps ────────────────────────────────────────────────────────
 deps:
 	@printf "$(CYAN)Installing dependencies...$(NC)\n"
-	@eval $$(opam env) && opam install -y dune cohttp-lwt-unix yojson bos lwt
+	@eval $$(opam env) && opam install -y dune cohttp-lwt-unix yojson bos lwt lwt_ssl rresult astring fpath fmt logs
 	@printf "$(CYAN)Installing Verity typed prompt library...$(NC)\n"
 	@eval $$(opam env) && \
 	  if opam list verity 2>/dev/null | grep -q 'verity'; then \

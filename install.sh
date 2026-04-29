@@ -97,7 +97,7 @@ if [ "$SKIP_OCAML" = false ]; then
     success "OCaml $OCAML_SWITCH ready"
 
     info "Installing OCaml packages..."
-    opam install -y dune cohttp-lwt-unix yojson bos lwt
+    opam install -y dune cohttp-lwt-unix yojson bos lwt lwt_ssl rresult astring fpath fmt logs
     success "Packages installed"
 
     # ── Verity typed prompt library ──────────────────────────────
@@ -119,6 +119,7 @@ header "Step 2/3 · Build & Install (jarvis)"
 
 cd "$SCRIPT_DIR"
 
+eval "$(opam env)"
 info "Building Jarvis..."
 dune build 2>&1 || error "Build failed. Run 'dune build' manually to see detailed errors."
 success "Build complete"

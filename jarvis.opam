@@ -10,13 +10,18 @@ license: "MIT"
 homepage: "https://github.com/DelcioKelson/jarvis"
 bug-reports: "https://github.com/DelcioKelson/jarvis/issues"
 depends: [
+  "dune" {>= "3.10"}
   "ocaml" {>= "5.0"}
-  "dune" {>= "3.10" & >= "3.10"}
   "cohttp-lwt-unix" {>= "5.0"}
   "yojson" {>= "2.0"}
   "bos" {>= "0.2"}
   "lwt" {>= "5.6"}
   "lwt_ssl" {>= "1.2"}
+  "rresult" {>= "0.6"}
+  "astring" {>= "0.8"}
+  "fpath" {>= "0.7"}
+  "fmt" {>= "0.8"}
+  "logs" {>= "0.7"}
   "verity" {>= "0.1.0"}
   "odoc" {with-doc}
 ]
