@@ -1,6 +1,7 @@
 # ── Jarvis Makefile ──────────────────────────────────────────────
 # Usage:
 #   make              Build the project
+#   make deps         Install OCaml + Verity dependencies
 #   make install      Install binary + config
 #   make uninstall    Remove binary + config
 #   make reinstall    Clean rebuild + install
@@ -21,13 +22,27 @@ GREEN := \033[0;32m
 RED := \033[0;31m
 NC := \033[0m
 
-.PHONY: all build install uninstall reinstall clean dev doc help
+.PHONY: all build deps install uninstall reinstall clean dev doc help
 
 # Load opam environment
 OPAM_ENV := $(shell eval $$(opam env) && env | grep -E '^(PATH|OCAML|CAML|OPAM)' | sed 's/=/:=/' | sed 's/^/export /')
 $(eval $(OPAM_ENV))
 
 all: build
+
+# ── Deps ────────────────────────────────────────────────────────
+deps:
+	@printf "$(CYAN)Installing dependencies...$(NC)\n"
+	@eval $$(opam env) && opam install -y dune cohttp-lwt-unix yojson bos lwt
+	@printf "$(CYAN)Installing Verity typed prompt library...$(NC)\n"
+	@eval $$(opam env) && \
+	  if opam list verity 2>/dev/null | grep -q 'verity'; then \
+	    opam upgrade -y verity; \
+	  else \
+	    opam pin add -y verity 'git+https://github.com/DelcioKelson/verity.git#main' --no-action && \
+	    opam install -y verity; \
+	  fi
+	@printf "$(GREEN)✓ All dependencies installed$(NC)\n"
 
 # ── Build ───────────────────────────────────────────────────────
 build:
@@ -120,6 +135,7 @@ doc:
 help:
 	@printf "$(BOLD)Jarvis Makefile$(NC)\n\n"
 	@printf "  $(CYAN)make$(NC)              Build the project\n"
+	@printf "  $(CYAN)make deps$(NC)         Install OCaml + Verity dependencies\n"
 	@printf "  $(CYAN)make install$(NC)      Install binary + config (~/.config/jarvis/)\n"
 	@printf "  $(CYAN)make uninstall$(NC)    Remove binary + config\n"
 	@printf "  $(CYAN)make reinstall$(NC)    Clean rebuild + install\n"

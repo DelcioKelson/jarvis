@@ -99,13 +99,23 @@ if [ "$SKIP_OCAML" = false ]; then
     info "Installing OCaml packages..."
     opam install -y dune cohttp-lwt-unix yojson bos lwt
     success "Packages installed"
+
+    # ── Verity typed prompt library ──────────────────────────────
+    info "Installing Verity typed prompt library..."
+    if opam list verity 2>/dev/null | grep -q 'verity'; then
+        opam upgrade -y verity
+    else
+        opam pin add -y verity 'git+https://github.com/DelcioKelson/verity.git#main' --no-action
+        opam install -y verity
+    fi
+    success "Verity installed"
 else
-    info "Skipping OCaml setup (--skip-ocaml)"
+    info "Skipping OCaml/Verity setup (--skip-ocaml)"
     eval "$(opam env)" 2>/dev/null || true
 fi
 
 # ─── 2. Build & Install ──────────────────────────────────────────
-header "Step 2/3 · Build & Install"
+header "Step 2/3 · Build & Install (jarvis)"
 
 cd "$SCRIPT_DIR"
 

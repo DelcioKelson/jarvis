@@ -13,10 +13,11 @@
  (synopsis "AI-powered CLI assistant using any OpenAI-compatible API")
  (description "Jarvis is a CLI assistant that uses any OpenAI-compatible API to execute commands and answer questions through natural language. Features interactive REPL mode, colored output, and type-safe command execution.")
  (depends
-  (ocaml (>= 4.14))
+  (ocaml (>= 5.0))
   (dune (>= 3.10))
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 2.0))
   (bos (>= 0.2))
   (lwt (>= 5.6))
-  (lwt_ssl (>= 1.2))))
+  (lwt_ssl (>= 1.2))
+  (verity (>= 0.1.0))))

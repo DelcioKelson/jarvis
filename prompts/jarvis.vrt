@@ -1,0 +1,56 @@
+-- Jarvis AI assistant — Verity prompt definitions
+-- These prompts power the Jarvis CLI via the Verity typed prompt runtime.
+--
+-- Run `verity check prompts/jarvis.vrt` to type-check without an LLM call.
+
+-- ------------------------------------------------------------------ --
+--  Command parsing                                                     --
+-- ------------------------------------------------------------------ --
+
+prompt parse_command(request: string) -> json
+  [effects: Latent(3.0), Fallible]
+  retry(2) with: "Respond with ONLY valid JSON. The 'action' field must be one of the listed commands and 'args' must be an object."
+  =
+"""
+You are a Linux command-line assistant. Convert the user request into a structured JSON command.
+If a path is not specified, assume the current working directory.
+
+Available commands: ls, mkdir, echo, pwd, cat, head, tail, find, grep, wc, du, df, whoami, hostname, date, env.
+
+User request: {{request}}
+
+Return JSON in exactly this format:
+{"action": "<command>", "args": {<command-specific args>}}
+
+Examples:
+- List directory:      {"action": "ls",       "args": {"path": "."}}
+- Show first 20 lines: {"action": "head",     "args": {"path": "file.txt", "lines": 20}}
+- Show last 5 lines:   {"action": "tail",     "args": {"path": "file.txt", "lines": 5}}
+- Find .txt files:     {"action": "find",     "args": {"path": ".", "name": "*.txt"}}
+- Search for error:    {"action": "grep",     "args": {"pattern": "error", "path": "app.log"}}
+- Create folder:       {"action": "mkdir",    "args": {"path": "Documents"}}
+- Echo text:           {"action": "echo",     "args": {"text": "Hello World!"}}
+- Show date:           {"action": "date",     "args": {}}
+- Show pwd:            {"action": "pwd",      "args": {}}
+- Disk usage:          {"action": "du",       "args": {}}
+- Disk space:          {"action": "df",       "args": {}}
+- Who am I:            {"action": "whoami",   "args": {}}
+- Show hostname:       {"action": "hostname", "args": {}}
+- Show PATH:           {"action": "env",      "args": {"variable": "PATH"}}
+- Count lines:         {"action": "wc",       "args": {"path": "file.txt"}}
+- Show file:           {"action": "cat",      "args": {"path": "file.txt"}}
+"""
+
+-- ------------------------------------------------------------------ --
+--  Question answering                                                  --
+-- ------------------------------------------------------------------ --
+
+prompt answer_question(query: string) -> { answer: string }
+  [effects: Latent(5.0), Fallible]
+  retry(1) with: "Return JSON with exactly one field: {\"answer\": \"<your response here>\"}"
+  =
+"""
+Answer the following question clearly and concisely.
+
+Question: {{query}}
+"""
